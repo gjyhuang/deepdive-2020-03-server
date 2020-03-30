@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     imageUrl: DataTypes.STRING
   }, {});
   Option.associate = function(models) {
-    Question.belongsToMany(models.Option, {
+    Option.belongsToMany(models.Question, {
       through: 'QuestionOption',
       as: 'questions',
       foreignKey: 'optionId',
