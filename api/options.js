@@ -51,10 +51,10 @@ router.put('/:id', async (req, res, next) => {
     const { id } = req.params;
     const optionToUpdate = await Option.findByPk(id);
     if (optionToUpdate) {
-      const { body, instructions } = req.body;
+      const { body, imageUrl } = req.body;
       const updatedOption = await optionToUpdate.update({
         body,
-        instructions
+        imageUrl
       });
       res.status(200).json(updatedOption);
     } else {

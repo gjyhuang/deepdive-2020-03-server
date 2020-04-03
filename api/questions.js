@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const models = require('../models');
 const Question = models.Question;
+const Option = models.Option;
+const QuestionOption = models.QuestionOption;
 
 /* three ways of passing in info
 - req.body - request
@@ -41,12 +43,44 @@ router.post('/', async (req, res, next) => {
   try {
     const { body, instructions, options } = req.body;
     if (body && instructions) {
+      if (options) {
+        // if the user is also making 4 options - to validate whether all of the options are unique or not, and before saving a new question to the db
+        const optionsSet = new Set(options);
+        if (optionsSet.size !== 4) {
+          res.sendStatus(400);
+          return;
+        }
+      }
+
       const newQuestion = await Question.create({
         body,
         instructions
       });
 
-      res.status(200).json(newQuestion);
+      if (options) {
+        // make all four options
+        // note that map is synchronous, so you need Promise.all to resolve the promises
+        const newOptionsArr = await Promise.all(
+          options.map(async (o) => {
+            const optionBody = o.body;
+            const { imageUrl, isAnswer } = o;
+            const newOption = await Option.create({
+              body: optionBody,
+              imageUrl
+            });
+
+            // and associate the question to the current option
+            const newAssociation = await QuestionOption.create({
+              questionId: newQuestion.id,
+              optionId: newOption.id,
+              isAnswer
+            })
+            return { option: newOption, association: newAssociation };
+          }));
+        res.status(200).json({question: newQuestion, options: newOptionsArr});
+      } else {
+        res.status(200).json(newQuestion);
+      }
     } else {
       res.sendStatus(400);
     }
