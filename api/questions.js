@@ -79,7 +79,7 @@ router.post('/', async (req, res, next) => {
           }));
         res.status(200).json({question: newQuestion, options: newOptionsArr});
       } else {
-        res.status(200).json(newQuestion);
+        res.status(200).json({question: newQuestion, options: null}); // **
       }
     } else {
       res.sendStatus(400);
