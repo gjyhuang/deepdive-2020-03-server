@@ -92,7 +92,9 @@ router.post('/', async (req, res, next) => {
 router.get('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
-    const question = await Question.findByPk(id);
+    const question = await Question.findByPk(id, {
+      include: ['options']
+    });
     if (question) {
       res.status(200).json(question);
     } else {
